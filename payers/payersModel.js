@@ -4,6 +4,7 @@ module.exports = {
   addPayer,
   getPayers,
   getPayerBy,
+  addTransaction,
 };
 
 function addPayer(payer) {
@@ -22,5 +23,21 @@ function getPayerBy(filterName, filterValue) {
       return db("payers").where({ payer: filterValue });
     default:
       return false;
+  }
+}
+
+function addTransaction(transaction, userid, payerid) {
+  if (transaction.payer && transaction.points && transaction.timestamp) {
+    return db("user_points").insert(
+      {
+        user_id: userid,
+        payer_id: payerid,
+        points: transaction.points,
+        timestamp: transaction.timestamp,
+      },
+      "user_points_id",
+    );
+  } else {
+    return false;
   }
 }

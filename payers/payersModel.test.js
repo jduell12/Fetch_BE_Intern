@@ -36,6 +36,51 @@ function expectedPayersOutput() {
   return [payer1, payer2, payer3];
 }
 
+//sample transactions to be used in the tests
+function getTransactions() {
+  const transaction1 = {
+    payer: "DANNON",
+    points: 1000,
+    timestamp: "2020-11-02T14:00:00Z",
+  };
+  const transaction2 = {
+    payer: "UNILEVER",
+    points: 200,
+    timestamp: "2020-10-31T11:00:00Z",
+  };
+  const transaction3 = {
+    payer: "DANNON",
+    points: -200,
+    timestamp: "2020-10-31T15:00:00Z",
+  };
+  const transaction4 = {
+    payer: "MILLER COORS",
+    points: 10000,
+    timestamp: "2020-11-01T14:00:00Z",
+  };
+  const transaction5 = {
+    payer: "DANNON",
+    points: 300,
+    timestamp: "2020-10-31T10:00:00Z",
+  };
+  return [transaction1, transaction2, transaction3, transaction4, transaction5];
+}
+
+//adds payers to the database
+async function addPayers() {
+  let payers = getPayers();
+  let expectedPayers = expectedPayersOutput();
+
+  for (let i = 0; i < payers.length; i++) {
+    await db("payers").insert(payers[i]);
+  }
+
+  //Check that the payers were added correctly
+  let dbPayers = await db("payers");
+  expect(dbPayers).toHaveLength(3);
+  expect(dbPayers).toEqual(expectedPayers);
+}
+
 describe("payersModel", () => {
   //wipes all tables in database clean so each test starts with empty tables
   beforeEach(async () => {
@@ -98,17 +143,8 @@ describe("payersModel", () => {
 
   describe("getPayerBy(filterName, filterValue)", () => {
     it("gets a list of payers in a populated database by their payer_id", async () => {
-      let payers = getPayers();
-      let expectedPayers = expectedPayersOutput();
-
-      for (let i = 0; i < payers.length; i++) {
-        await db("payers").insert(payers[i]);
-      }
-
-      //Check that the payers were added correctly
-      let dbPayers = await db("payers");
-      expect(dbPayers).toHaveLength(3);
-      expect(dbPayers).toEqual(expectedPayers);
+      await addPayers();
+      const dbPayers = await db("payers");
 
       let payer1 = await Payers.getPayerBy("payer_id", 1);
       expect(payer1).toHaveLength(1);
@@ -124,17 +160,8 @@ describe("payersModel", () => {
     });
 
     it("gets a list of payers in a populated database by their payer name", async () => {
-      let payers = getPayers();
-      let expectedPayers = expectedPayersOutput();
-
-      for (let i = 0; i < payers.length; i++) {
-        await db("payers").insert(payers[i]);
-      }
-
-      //Check that the payers were added correctly
-      let dbPayers = await db("payers");
-      expect(dbPayers).toHaveLength(3);
-      expect(dbPayers).toEqual(expectedPayers);
+      await addPayers();
+      const dbPayers = await db("payers");
 
       let payer1 = await Payers.getPayerBy("payer", "DANNON");
       expect(payer1).toHaveLength(1);
@@ -147,6 +174,40 @@ describe("payersModel", () => {
       let payer3 = await Payers.getPayerBy("payer", "MILLER COORS");
       expect(payer3).toHaveLength(1);
       expect(payer3).toEqual([dbPayers[2]]);
+    });
+  });
+
+  describe("addTransaction(transaction, userid, payerid)", () => {
+    it("adds a transaction to an empty user_points table", async () => {
+      await addPayers();
+      await db("users").insert({
+        user_id: 1,
+        username: "user1",
+        password: "pass",
+      });
+
+      const transactions = getTransactions();
+
+      const transaction = await Payers.addTransaction(transactions[0], 1, 1);
+      expect(transaction).toHaveLength(1);
+      expect(transaction).toEqual([1]);
+    });
+
+    it("adds a transaction to a non-empty user points table", async () => {
+      await addPayers();
+      await db("users").insert({
+        user_id: 1,
+        username: "user1",
+        password: "pass",
+      });
+
+      const transactions = getTransactions();
+      await Payers.addTransaction(transactions[0], 1, 1);
+      await Payers.addTransaction(transactions[0], 1, 2);
+
+      const transaction = await Payers.addTransaction(transactions[0], 1, 3);
+      expect(transaction).toHaveLength(1);
+      expect(transaction).toEqual([3]);
     });
   });
 });
