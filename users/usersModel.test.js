@@ -126,7 +126,7 @@ describe("usersModel", () => {
       const points = await Users.getPoints(1);
 
       expect(points).toHaveLength(1);
-      expect(points).toEqual([{ sum: null }]);
+      expect(points).toEqual([{ points: null }]);
     });
 
     it("gets points when the user has points in the database", async () => {
@@ -142,7 +142,7 @@ describe("usersModel", () => {
 
       const points = await Users.getPoints(1);
       expect(points).toHaveLength(1);
-      expect(points).toEqual([{ sum: "11300" }]);
+      expect(points).toEqual([{ points: 11300 }]);
     });
   });
 
@@ -171,7 +171,7 @@ describe("usersModel", () => {
       expect(count).toBe(3);
 
       const points = await Users.getPoints(1);
-      expect(points).toEqual([{ sum: "10500" }]);
+      expect(points).toEqual([{ points: 10500 }]);
     });
   });
 

@@ -6,8 +6,16 @@ module.exports = {
   getDetailedPoints,
 };
 
-function getPoints(userid) {
-  return db("user_points").sum("points").where({ user_id: userid });
+async function getPoints(userid) {
+  let sum = await db("user_points")
+    .sum("points as points")
+    .where({ user_id: userid });
+  if (sum[0].points === null) {
+    return sum;
+  }
+
+  sum[0].points = parseInt(sum[0].points);
+  return sum;
 }
 
 function updatePoints(userid, payerid, points) {
