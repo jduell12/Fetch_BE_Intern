@@ -17,9 +17,9 @@ function getPayers() {
 function getPayerBy(filterName, filterValue) {
   switch (filterName) {
     case "payer_id":
-      return db("payers").where({ payer_id: filterValue }).first();
+      return db("payers").where({ payer_id: filterValue });
     case "payer":
-      return db("payers").where({ payer: filterValue }).first();
+      return db("payers").where({ payer: filterValue });
     default:
       return false;
   }
