@@ -1,5 +1,3 @@
-const { get } = require("https");
-const { isMainThread } = require("worker_threads");
 const db = require("../db/dbConfig");
 const Payers = require("./payersModel");
 
@@ -203,9 +201,9 @@ describe("payersModel", () => {
 
       const transactions = getTransactions();
       await Payers.addTransaction(transactions[0], 1, 1);
-      await Payers.addTransaction(transactions[0], 1, 2);
+      await Payers.addTransaction(transactions[1], 1, 2);
 
-      const transaction = await Payers.addTransaction(transactions[0], 1, 3);
+      const transaction = await Payers.addTransaction(transactions[2], 1, 3);
       expect(transaction).toHaveLength(1);
       expect(transaction).toEqual([3]);
     });

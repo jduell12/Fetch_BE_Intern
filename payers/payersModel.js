@@ -27,7 +27,7 @@ function getPayerBy(filterName, filterValue) {
 }
 
 function addTransaction(transaction, userid, payerid) {
-  if (transaction.payer && transaction.points && transaction.timestamp) {
+  if (transaction.points && transaction.timestamp) {
     return db("user_points").insert(
       {
         user_id: userid,
